@@ -776,18 +776,29 @@
         function positionCircles(container, colors, isDemo) {
             container.innerHTML = '<div class="center-circle"></div><div class="reference-label">Reference</div>';
             
-            const radius = 200;
+            // Get actual container dimensions instead of using fixed values
+            const containerWidth = container.offsetWidth;
+            const containerHeight = container.offsetHeight;
+            const centerX = containerWidth / 2;
+            const centerY = containerHeight / 2;
+            
+            // Make radius proportional to container size (40% of container width)
+            const radius = containerWidth * 0.4;
+            
+            // Get circle size from CSS
+            const circleSize = Math.min(100, containerWidth * 0.2);
+            
             const angleStep = (2 * Math.PI) / NUM_CIRCLES;
             
             colors.forEach((colorData, index) => {
                 const angle = index * angleStep - Math.PI / 2;
-                const x = radius * Math.cos(angle) + 250;
-                const y = radius * Math.sin(angle) + 250;
+                const x = radius * Math.cos(angle) + centerX;
+                const y = radius * Math.sin(angle) + centerY;
                 
                 const circle = document.createElement('div');
                 circle.className = 'circle';
-                circle.style.left = `${x - 50}px`;
-                circle.style.top = `${y - 50}px`;
+                circle.style.left = `${x - circleSize / 2}px`;
+                circle.style.top = `${y - circleSize / 2}px`;
                 circle.style.background = colorData.color;
                 
                 if (isDemo) {
