@@ -1,0 +1,1115 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Color Perception Test - Biology IA</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Arial', sans-serif;
+            background: #2a2a2a;
+            min-height: 100vh;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            color: #333;
+            overflow-x: hidden;
+        }
+
+        .container {
+            text-align: center;
+            width: 100%;
+            max-width: 900px;
+            padding: 20px;
+        }
+
+        .demographics-screen, .instruction-screen, .demo-screen, .test-screen, .results-screen {
+            background: #4a4a4a;
+            border-radius: 20px;
+            padding: 40px;
+            box-shadow: 0 8px 32px rgba(0, 0, 0, 0.5);
+        }
+
+        h1 {
+            font-size: 2.5em;
+            margin-bottom: 20px;
+            color: #e0e0e0;
+        }
+
+        h2 {
+            font-size: 1.8em;
+            margin-bottom: 15px;
+            color: #d0d0d0;
+        }
+
+        .instructions {
+            text-align: left;
+            margin: 20px 0;
+            line-height: 1.8;
+            color: #c0c0c0;
+        }
+
+        .instructions li {
+            margin: 10px 0;
+        }
+
+        .instructions strong {
+            color: #ff6b6b;
+        }
+
+        p {
+            color: #c0c0c0;
+        }
+
+        /* Demographics Form Styles */
+        .demographics-form {
+            text-align: left;
+            margin: 30px auto;
+            max-width: 600px;
+        }
+
+        .form-group {
+            margin-bottom: 25px;
+        }
+
+        .form-group label {
+            display: block;
+            margin-bottom: 8px;
+            color: #e0e0e0;
+            font-weight: bold;
+            font-size: 1.1em;
+        }
+
+        .form-group input[type="text"],
+        .form-group input[type="number"] {
+            width: 100%;
+            padding: 12px;
+            border: 2px solid #666;
+            border-radius: 8px;
+            background: #3a3a3a;
+            color: #e0e0e0;
+            font-size: 1em;
+        }
+
+        .form-group input[type="text"]:focus,
+        .form-group input[type="number"]:focus {
+            outline: none;
+            border-color: #667eea;
+        }
+
+        .radio-group {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 15px;
+            margin-top: 8px;
+        }
+
+        .radio-option {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .radio-option input[type="radio"] {
+            width: 18px;
+            height: 18px;
+            cursor: pointer;
+        }
+
+        .radio-option label {
+            color: #c0c0c0;
+            cursor: pointer;
+            font-weight: normal;
+            font-size: 1em;
+            margin: 0;
+        }
+
+        .form-error {
+            color: #ff6b6b;
+            font-size: 0.9em;
+            margin-top: 5px;
+            display: none;
+        }
+
+        button {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            border: none;
+            color: white;
+            padding: 15px 40px;
+            font-size: 1.2em;
+            border-radius: 50px;
+            cursor: pointer;
+            margin: 20px 10px;
+            transition: transform 0.2s, box-shadow 0.2s;
+            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.2);
+        }
+
+        button:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 6px 20px rgba(0, 0, 0, 0.3);
+        }
+
+        button:active {
+            transform: translateY(0);
+        }
+
+        button:disabled {
+            opacity: 0.5;
+            cursor: not-allowed;
+        }
+
+        .circle-container {
+            position: relative;
+            width: 500px;
+            height: 500px;
+            margin: 30px auto;
+        }
+
+        .circle {
+            position: absolute;
+            width: 100px;
+            height: 100px;
+            border-radius: 50%;
+            cursor: pointer;
+            transition: transform 0.1s, opacity 0.3s;
+            border: 3px solid rgba(0, 0, 0, 0.2);
+        }
+
+        .circle:hover {
+            transform: scale(1.1);
+            border-color: rgba(0, 0, 0, 0.5);
+        }
+
+        .center-circle {
+            width: 100px;
+            height: 100px;
+            border-radius: 50%;
+            background: hsl(120, 70%, 50%);
+            position: absolute;
+            left: 50%;
+            top: 50%;
+            transform: translate(-50%, -50%);
+            border: 3px solid rgba(0, 0, 0, 0.2);
+            box-shadow: none;
+            pointer-events: none;
+        }
+
+        .reference-label {
+            position: absolute;
+            left: 50%;
+            top: 50%;
+            transform: translate(-50%, 60px);
+            font-size: 0.9em;
+            font-weight: bold;
+            color: #e0e0e0;
+            background: rgba(0, 0, 0, 0.6);
+            padding: 5px 10px;
+            border-radius: 5px;
+            pointer-events: none;
+            border: 1px solid rgba(255, 255, 255, 0.3);
+        }
+
+        .timer-bar {
+            height: 8px;
+            background: white;
+            transition: width 0.1s linear;
+            box-shadow: 0 2px 10px rgba(255, 255, 255, 0.5);
+            margin: 20px auto;
+            border-radius: 4px;
+            max-width: 800px;
+        }
+
+        .timer-warning {
+            background: #ff5252 !important;
+            box-shadow: 0 2px 10px rgba(255, 82, 82, 0.8) !important;
+        }
+
+        .info-panel {
+            display: flex;
+            justify-content: space-around;
+            margin: 20px 0;
+            font-size: 1.2em;
+        }
+
+        .info-item {
+            background: rgba(255, 255, 255, 0.1);
+            padding: 10px 20px;
+            border-radius: 10px;
+            color: #e0e0e0;
+            border: 2px solid rgba(255, 255, 255, 0.2);
+        }
+
+        .countdown {
+            font-size: 4em;
+            margin: 40px 0;
+            color: #e0e0e0;
+        }
+
+        .results-table {
+            background: #3a3a3a;
+            border-radius: 10px;
+            padding: 20px;
+            margin: 20px 0;
+            max-height: 400px;
+            overflow-y: auto;
+            border: 1px solid #555;
+        }
+
+        .results-table table {
+            width: 100%;
+            border-collapse: collapse;
+        }
+
+        .results-table th, .results-table td {
+            padding: 10px;
+            border-bottom: 1px solid #555;
+            color: #e0e0e0;
+        }
+
+        .results-table th {
+            background: rgba(255, 255, 255, 0.1);
+            font-weight: bold;
+        }
+
+        .demo-message {
+            font-size: 1.3em;
+            margin: 20px 0;
+            padding: 15px;
+            background: rgba(255, 255, 255, 0.1);
+            border-radius: 10px;
+            color: #e0e0e0;
+        }
+
+        .hidden {
+            display: none;
+        }
+
+        .score-display {
+            font-size: 3em;
+            margin: 30px 0;
+            color: #e0e0e0;
+        }
+
+        .feedback {
+            font-size: 1.5em;
+            margin: 15px 0;
+            padding: 10px;
+            border-radius: 10px;
+            animation: fadeIn 0.3s;
+        }
+
+        .feedback.correct {
+            background: rgba(76, 175, 80, 0.3);
+            color: #4caf50;
+        }
+
+        .feedback.incorrect {
+            background: rgba(244, 67, 54, 0.3);
+            color: #f44336;
+        }
+
+        .submission-status {
+            margin: 20px 0;
+            padding: 15px;
+            border-radius: 10px;
+            font-size: 1.1em;
+        }
+
+        .submission-status.success {
+            background: rgba(76, 175, 80, 0.3);
+            color: #4caf50;
+        }
+
+        .submission-status.error {
+            background: rgba(244, 67, 54, 0.3);
+            color: #f44336;
+        }
+
+        @keyframes fadeIn {
+            from { opacity: 0; transform: scale(0.9); }
+            to { opacity: 1; transform: scale(1); }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <!-- Demographics Screen -->
+        <div id="demographicsScreen" class="demographics-screen">
+            <h1>Color Perception Test</h1>
+            <h2>Participant Information</h2>
+            <p style="margin-bottom: 30px;">Please fill out the following information before starting the test.</p>
+            
+            <form id="demographicsForm" class="demographics-form">
+                <div class="form-group">
+                    <label for="fullName">Full Name *</label>
+                    <input type="text" id="fullName" name="fullName" required>
+                    <div class="form-error" id="nameError">Please enter your full name</div>
+                </div>
+
+                <div class="form-group">
+                    <label for="age">Age (years) *</label>
+                    <input type="number" id="age" name="age" min="1" max="120" required>
+                    <div class="form-error" id="ageError">Please enter a valid age</div>
+                </div>
+
+                <div class="form-group">
+                    <label>Biological sex *</label>
+                    <div class="radio-group">
+                        <div class="radio-option">
+                            <input type="radio" id="sexMale" name="sex" value="Male" required>
+                            <label for="sexMale">Male</label>
+                        </div>
+                        <div class="radio-option">
+                            <input type="radio" id="sexFemale" name="sex" value="Female">
+                            <label for="sexFemale">Female</label>
+                        </div>
+                        <div class="radio-option">
+                            <input type="radio" id="sexPreferNot" name="sex" value="Prefer not to say">
+                            <label for="sexPreferNot">Prefer not to say</label>
+                        </div>
+                    </div>
+                    <div class="form-error" id="sexError">Please select an option</div>
+                </div>
+
+                <div class="form-group">
+                    <label>I have normal color vision to the best of my knowledge *</label>
+                    <div class="radio-group">
+                        <div class="radio-option">
+                            <input type="radio" id="colorVisionYes" name="colorVision" value="Yes" required>
+                            <label for="colorVisionYes">Yes</label>
+                        </div>
+                        <div class="radio-option">
+                            <input type="radio" id="colorVisionNo" name="colorVision" value="No">
+                            <label for="colorVisionNo">No</label>
+                        </div>
+                    </div>
+                    <div class="form-error" id="colorVisionError">Please select an option</div>
+                </div>
+
+                <div class="form-group">
+                    <label>Do you normally use glasses or contact lenses? *</label>
+                    <div class="radio-group">
+                        <div class="radio-option">
+                            <input type="radio" id="glassesYes" name="glasses" value="Yes" required>
+                            <label for="glassesYes">Yes</label>
+                        </div>
+                        <div class="radio-option">
+                            <input type="radio" id="glassesNo" name="glasses" value="No">
+                            <label for="glassesNo">No</label>
+                        </div>
+                    </div>
+                    <div class="form-error" id="glassesError">Please select an option</div>
+                </div>
+
+                <div class="form-group">
+                    <label>Device used *</label>
+                    <div class="radio-group">
+                        <div class="radio-option">
+                            <input type="radio" id="devicePhone" name="device" value="Phone / Tablet" required>
+                            <label for="devicePhone">Phone / Tablet</label>
+                        </div>
+                        <div class="radio-option">
+                            <input type="radio" id="deviceMouse" name="device" value="Computer with mouse">
+                            <label for="deviceMouse">Computer with mouse</label>
+                        </div>
+                        <div class="radio-option">
+                            <input type="radio" id="deviceNoMouse" name="device" value="Computer without mouse">
+                            <label for="deviceNoMouse">Computer without mouse</label>
+                        </div>
+                    </div>
+                    <div class="form-error" id="deviceError">Please select an option</div>
+                </div>
+
+                <div class="form-group">
+                    <label>Screen type (if known)</label>
+                    <div class="radio-group">
+                        <div class="radio-option">
+                            <input type="radio" id="screenIPS" name="screen" value="IPS">
+                            <label for="screenIPS">IPS</label>
+                        </div>
+                        <div class="radio-option">
+                            <input type="radio" id="screenVA" name="screen" value="VA">
+                            <label for="screenVA">VA</label>
+                        </div>
+                        <div class="radio-option">
+                            <input type="radio" id="screenTN" name="screen" value="TN">
+                            <label for="screenTN">TN</label>
+                        </div>
+                        <div class="radio-option">
+                            <input type="radio" id="screenOLED" name="screen" value="OLED">
+                            <label for="screenOLED">OLED</label>
+                        </div>
+                        <div class="radio-option">
+                            <input type="radio" id="screenNotSure" name="screen" value="Not sure">
+                            <label for="screenNotSure">Not sure</label>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="form-group">
+                    <label>Room lighting during test *</label>
+                    <div class="radio-group">
+                        <div class="radio-option">
+                            <input type="radio" id="lightBright" name="lighting" value="Bright" required>
+                            <label for="lightBright">Bright</label>
+                        </div>
+                        <div class="radio-option">
+                            <input type="radio" id="lightModerate" name="lighting" value="Moderate">
+                            <label for="lightModerate">Moderate</label>
+                        </div>
+                        <div class="radio-option">
+                            <input type="radio" id="lightDim" name="lighting" value="Dim">
+                            <label for="lightDim">Dim</label>
+                        </div>
+                    </div>
+                    <div class="form-error" id="lightingError">Please select an option</div>
+                </div>
+
+                <div class="form-group">
+                    <label>Is any display color modification currently enabled? (e.g., Night Mode, Blue Light Filter, True Tone) *</label>
+                    <div class="radio-group">
+                        <div class="radio-option">
+                            <input type="radio" id="modsYes" name="mods" value="Yes" required>
+                            <label for="modsYes">Yes</label>
+                        </div>
+                        <div class="radio-option">
+                            <input type="radio" id="modsNo" name="mods" value="No">
+                            <label for="modsNo">No</label>
+                        </div>
+                        <div class="radio-option">
+                            <input type="radio" id="modsNotSure" name="mods" value="Not sure">
+                            <label for="modsNotSure">Not sure</label>
+                        </div>
+                    </div>
+                    <div class="form-error" id="modsError">Please select an option</div>
+                </div>
+
+                <button type="submit">Continue to Instructions</button>
+            </form>
+        </div>
+
+        <!-- Instruction Screen -->
+        <div id="instructionScreen" class="instruction-screen hidden">
+            <h1>Color Perception Test</h1>
+            <h2>Instructions</h2>
+            <ul class="instructions">
+                <li>You will see <strong>8 colored circles</strong> arranged around a <strong>center reference circle</strong></li>
+                <li>Your task is to click the circle that <strong>matches the center reference color</strong> as quickly as possible</li>
+                <li>You have <strong>5 seconds</strong> for each trial</li>
+                <li>The test consists of <strong>10 levels</strong> with increasing difficulty</li>
+                <li>Each level has <strong>5 trials</strong> (50 trials total)</li>
+                <li>First, you'll complete <strong>5 practice trials</strong> to familiarize yourself with the test</li>
+                <li><strong>Important:</strong> Try to be as quick and accurate as possible!</li>
+            </ul>
+            <button onclick="startDemo()">Start Practice Trials</button>
+        </div>
+
+        <!-- Demo Screen -->
+        <div id="demoScreen" class="demo-screen hidden">
+            <h2>Practice Trial <span id="demoTrialNumber">1</span>/5</h2>
+            <p class="demo-message" id="demoMessage">Click the circle that matches the center reference color</p>
+            <div class="timer-bar" id="demoTimerBar"></div>
+            <div class="circle-container" id="demoCircleContainer">
+                <div class="center-circle"></div>
+                <div class="reference-label">Reference</div>
+            </div>
+        </div>
+
+        <!-- Countdown Screen -->
+        <div id="countdownScreen" class="instruction-screen hidden">
+            <h1>Get Ready!</h1>
+            <p>The actual test will begin in...</p>
+            <div class="countdown" id="countdownNumber">5</div>
+        </div>
+
+        <!-- Test Screen -->
+        <div id="testScreen" class="test-screen hidden">
+            <div class="info-panel">
+                <div class="info-item">Trial: <span id="trialNumber">1</span>/50</div>
+                <div class="info-item">Level: <span id="levelNumber">1</span>/10</div>
+                <div class="info-item">Difficulty: <span id="difficulty">180</span>°</div>
+                <div class="info-item">Score: <span id="currentScore">0</span></div>
+            </div>
+            <div class="timer-bar" id="timerBar"></div>
+            <div class="circle-container" id="circleContainer">
+                <div class="center-circle"></div>
+                <div class="reference-label">Reference</div>
+            </div>
+        </div>
+
+        <!-- Results Screen -->
+        <div id="resultsScreen" class="results-screen hidden">
+            <h1>Test Complete!</h1>
+            <div class="score-display">Final Score: <span id="finalScore">0</span> / 1000</div>
+            
+            <div id="submissionStatus" class="submission-status hidden"></div>
+            
+            <div class="results-table">
+                <table>
+                    <thead>
+                        <tr>
+                            <th>Trial</th>
+                            <th>Level</th>
+                            <th>Difficulty (°)</th>
+                            <th>Response Time (ms)</th>
+                            <th>Result</th>
+                        </tr>
+                    </thead>
+                    <tbody id="resultsBody"></tbody>
+                </table>
+            </div>
+            
+            <button onclick="submitToGoogleSheets()" id="submitButton">Submit Results</button>
+            <button onclick="downloadResults()">Download Backup Copy</button>
+        </div>
+    </div>
+
+    <script>
+        // IMPORTANT: Replace this URL with your Google Apps Script web app URL
+        const GOOGLE_SCRIPT_URL = 'https://script.google.com/macros/s/AKfycbx1ALarn7HQ1gvNCXnmG9gPG47sHyWAAOeNLJPOAeMPCjm_qugGO92qSX_m2OTYA59x/exec';
+
+        // Test Configuration
+        const TARGET_HUE = 120; // Pure green
+        const LEVELS = [180, 120, 90, 60, 45, 30, 20, 15, 10, 8];
+        const TRIALS_PER_LEVEL = 5;
+        const TIME_LIMIT = 5000; // 5 seconds in milliseconds
+        const NUM_CIRCLES = 8;
+        const DEMO_LEVELS = [180, 120, 90, 60, 45]; // Levels 1-5
+        const MAX_SCORE = 1000; // Maximum possible score
+        const POINTS_PER_TRIAL = MAX_SCORE / (LEVELS.length * TRIALS_PER_LEVEL); // 20 points per trial
+
+        // Sound effects (using Web Audio API)
+        const audioContext = new (window.AudioContext || window.webkitAudioContext)();
+
+        function playCorrectSound() {
+            const oscillator = audioContext.createOscillator();
+            const gainNode = audioContext.createGain();
+            oscillator.connect(gainNode);
+            gainNode.connect(audioContext.destination);
+            oscillator.frequency.setValueAtTime(800, audioContext.currentTime);
+            oscillator.frequency.exponentialRampToValueAtTime(1200, audioContext.currentTime + 0.1);
+            gainNode.gain.setValueAtTime(0.3, audioContext.currentTime);
+            gainNode.gain.exponentialRampToValueAtTime(0.01, audioContext.currentTime + 0.1);
+            oscillator.start(audioContext.currentTime);
+            oscillator.stop(audioContext.currentTime + 0.1);
+        }
+
+        function playIncorrectSound() {
+            const oscillator = audioContext.createOscillator();
+            const gainNode = audioContext.createGain();
+            oscillator.connect(gainNode);
+            gainNode.connect(audioContext.destination);
+            oscillator.frequency.setValueAtTime(200, audioContext.currentTime);
+            oscillator.frequency.exponentialRampToValueAtTime(100, audioContext.currentTime + 0.2);
+            gainNode.gain.setValueAtTime(0.3, audioContext.currentTime);
+            gainNode.gain.exponentialRampToValueAtTime(0.01, audioContext.currentTime + 0.2);
+            oscillator.start(audioContext.currentTime);
+            oscillator.stop(audioContext.currentTime + 0.2);
+        }
+
+        function playWarningSound() {
+            const oscillator = audioContext.createOscillator();
+            const gainNode = audioContext.createGain();
+            oscillator.connect(gainNode);
+            gainNode.connect(audioContext.destination);
+            oscillator.frequency.setValueAtTime(600, audioContext.currentTime);
+            gainNode.gain.setValueAtTime(0.2, audioContext.currentTime);
+            gainNode.gain.exponentialRampToValueAtTime(0.01, audioContext.currentTime + 0.15);
+            oscillator.start(audioContext.currentTime);
+            oscillator.stop(audioContext.currentTime + 0.15);
+        }
+
+        // State variables
+        let currentMode = 'demographics';
+        let currentTrial = 0;
+        let currentScore = 0;
+        let testData = [];
+        let trialStartTime;
+        let timerInterval;
+        let correctCircleIndex;
+        let demoIndex = 0;
+        let warningPlayed = false;
+        let clickLocked = false;
+        let demographicsData = {};
+
+        // Demographics form handling
+        document.getElementById('demographicsForm').addEventListener('submit', function(e) {
+            e.preventDefault();
+            
+            // Collect demographics data
+            demographicsData = {
+                fullName: document.getElementById('fullName').value,
+                age: document.getElementById('age').value,
+                sex: document.querySelector('input[name="sex"]:checked').value,
+                colorVision: document.querySelector('input[name="colorVision"]:checked').value,
+                glasses: document.querySelector('input[name="glasses"]:checked').value,
+                device: document.querySelector('input[name="device"]:checked').value,
+                screen: document.querySelector('input[name="screen"]:checked')?.value || 'Not specified',
+                lighting: document.querySelector('input[name="lighting"]:checked').value,
+                mods: document.querySelector('input[name="mods"]:checked').value
+            };
+            
+            // Move to instruction screen
+            document.getElementById('demographicsScreen').classList.add('hidden');
+            document.getElementById('instructionScreen').classList.remove('hidden');
+            currentMode = 'instructions';
+        });
+
+        // Randomize with probabilistic rounding
+        function randomizeValue(value) {
+            const floor = Math.floor(value);
+            const decimal = value - floor;
+            return Math.random() < decimal ? Math.ceil(value) : floor;
+        }
+
+        // Generate hue distances with Gaussian randomization
+        function generateColors(targetDifference) {
+            const stdDev = targetDifference * 0.1;
+            const colors = [];
+            
+            // Generate distractors
+            for (let i = 0; i < NUM_CIRCLES; i++) {
+                const gaussian = (Math.random() + Math.random() + Math.random() + Math.random() - 2) / 2;
+                const randomizedDiff = targetDifference + (gaussian * stdDev);
+                const finalDiff = randomizeValue(Math.max(0, randomizedDiff));
+                
+                const direction = Math.random() < 0.5 ? 1 : -1;
+                let hue = TARGET_HUE + (direction * finalDiff);
+                hue = (hue + 360) % 360;
+                
+                colors.push({
+                    hue: hue,
+                    isTarget: false,
+                    color: `hsl(${hue}, 70%, 50%)`
+                });
+            }
+            
+            // Replace one random circle with the exact target
+            correctCircleIndex = Math.floor(Math.random() * NUM_CIRCLES);
+            colors[correctCircleIndex] = {
+                hue: TARGET_HUE,
+                isTarget: true,
+                color: `hsl(${TARGET_HUE}, 70%, 50%)`
+            };
+            
+            return colors;
+        }
+
+        // Position circles in a ring
+        function positionCircles(container, colors, isDemo) {
+            container.innerHTML = '<div class="center-circle"></div><div class="reference-label">Reference</div>';
+            
+            const radius = 200;
+            const angleStep = (2 * Math.PI) / NUM_CIRCLES;
+            
+            colors.forEach((colorData, index) => {
+                const angle = index * angleStep - Math.PI / 2;
+                const x = radius * Math.cos(angle) + 250;
+                const y = radius * Math.sin(angle) + 250;
+                
+                const circle = document.createElement('div');
+                circle.className = 'circle';
+                circle.style.left = `${x - 50}px`;
+                circle.style.top = `${y - 50}px`;
+                circle.style.background = colorData.color;
+                
+                if (isDemo) {
+                    circle.onclick = () => handleDemoClick(index);
+                } else {
+                    circle.onclick = () => handleCircleClick(index);
+                }
+                
+                container.appendChild(circle);
+            });
+        }
+
+        // Start demo
+        function startDemo() {
+            document.getElementById('instructionScreen').classList.add('hidden');
+            document.getElementById('demoScreen').classList.remove('hidden');
+            currentMode = 'demo';
+            demoIndex = 0;
+            showDemoTrial();
+        }
+
+        // Show demo trial
+        function showDemoTrial() {
+            if (demoIndex >= DEMO_LEVELS.length) {
+                completeDemo();
+                return;
+            }
+            
+            const difficulty = DEMO_LEVELS[demoIndex];
+            document.getElementById('demoTrialNumber').textContent = demoIndex + 1;
+            document.getElementById('demoMessage').textContent = 'Click the circle that matches the center reference color';
+            document.getElementById('demoMessage').className = 'demo-message';
+            
+            const colors = generateColors(difficulty);
+            const container = document.getElementById('demoCircleContainer');
+            positionCircles(container, colors, true);
+            
+            startDemoTimer();
+        }
+
+        // Start demo timer
+        function startDemoTimer() {
+            const timerBar = document.getElementById('demoTimerBar');
+            trialStartTime = Date.now();
+            timerBar.style.width = '100%';
+            timerBar.classList.remove('timer-warning');
+            warningPlayed = false;
+            clickLocked = false;
+            
+            if (timerInterval) clearInterval(timerInterval);
+            
+            timerInterval = setInterval(() => {
+                const elapsed = Date.now() - trialStartTime;
+                const remaining = Math.max(0, TIME_LIMIT - elapsed);
+                const percentage = (remaining / TIME_LIMIT) * 100;
+                timerBar.style.width = `${percentage}%`;
+                
+                if (remaining <= 1000 && remaining > 900 && !warningPlayed) {
+                    playWarningSound();
+                    timerBar.classList.add('timer-warning');
+                    warningPlayed = true;
+                }
+                
+                if (remaining === 0) {
+                    clearInterval(timerInterval);
+                    handleDemoTimeout();
+                }
+            }, 100);
+        }
+
+        // Handle demo click
+        function handleDemoClick(index) {
+            if (clickLocked) return;
+            clickLocked = true;
+            
+            clearInterval(timerInterval);
+            
+            if (index === correctCircleIndex) {
+                playCorrectSound();
+                const message = document.getElementById('demoMessage');
+                message.innerHTML = '✓ Correct! Moving to next demo...';
+                message.className = 'demo-message feedback correct';
+                
+                setTimeout(() => {
+                    message.className = 'demo-message';
+                    demoIndex++;
+                    showBreakThenDemo();
+                }, 1000);
+            } else {
+                playIncorrectSound();
+                const message = document.getElementById('demoMessage');
+                message.innerHTML = '✗ Incorrect. Try again!';
+                message.className = 'demo-message feedback incorrect';
+                
+                setTimeout(() => {
+                    message.className = 'demo-message';
+                    showBreakThenDemo();
+                }, 1000);
+            }
+        }
+
+        // Show half-second break then demo trial
+        function showBreakThenDemo() {
+            const container = document.getElementById('demoCircleContainer');
+            const circles = container.querySelectorAll('.circle');
+            circles.forEach(circle => circle.style.opacity = '0');
+            
+            setTimeout(() => {
+                circles.forEach(circle => circle.style.opacity = '1');
+                showDemoTrial();
+            }, 500);
+        }
+
+        // Handle demo timeout
+        function handleDemoTimeout() {
+            if (clickLocked) return;
+            clickLocked = true;
+            
+            playIncorrectSound();
+            const message = document.getElementById('demoMessage');
+            message.innerHTML = '⏱ Time\'s up! Try again.';
+            message.className = 'demo-message feedback incorrect';
+            
+            setTimeout(() => {
+                message.className = 'demo-message';
+                showBreakThenDemo();
+            }, 1000);
+        }
+
+        // Complete demo and start countdown
+        function completeDemo() {
+            document.getElementById('demoScreen').classList.add('hidden');
+            document.getElementById('countdownScreen').classList.remove('hidden');
+            currentMode = 'countdown';
+            
+            let count = 5;
+            const countdownElement = document.getElementById('countdownNumber');
+            
+            const countdownInterval = setInterval(() => {
+                count--;
+                countdownElement.textContent = count;
+                
+                if (count === 0) {
+                    clearInterval(countdownInterval);
+                    startTest();
+                }
+            }, 1000);
+        }
+
+        // Start actual test
+        function startTest() {
+            document.getElementById('countdownScreen').classList.add('hidden');
+            document.getElementById('testScreen').classList.remove('hidden');
+            currentMode = 'test';
+            currentTrial = 0;
+            currentScore = 0;
+            testData = [];
+            showNextTrial();
+        }
+
+        // Show next trial
+        function showNextTrial() {
+            if (currentTrial >= LEVELS.length * TRIALS_PER_LEVEL) {
+                showResults();
+                return;
+            }
+            
+            const levelIndex = Math.floor(currentTrial / TRIALS_PER_LEVEL);
+            const difficulty = LEVELS[levelIndex];
+            
+            document.getElementById('trialNumber').textContent = currentTrial + 1;
+            document.getElementById('levelNumber').textContent = levelIndex + 1;
+            document.getElementById('difficulty').textContent = difficulty;
+            document.getElementById('currentScore').textContent = Math.round(currentScore);
+            
+            const colors = generateColors(difficulty);
+            const container = document.getElementById('circleContainer');
+            positionCircles(container, colors, false);
+            
+            startTimer();
+        }
+
+        // Start timer
+        function startTimer() {
+            const timerBar = document.getElementById('timerBar');
+            trialStartTime = Date.now();
+            timerBar.style.width = '100%';
+            timerBar.classList.remove('timer-warning');
+            warningPlayed = false;
+            clickLocked = false;
+            
+            if (timerInterval) clearInterval(timerInterval);
+            
+            timerInterval = setInterval(() => {
+                const elapsed = Date.now() - trialStartTime;
+                const remaining = Math.max(0, TIME_LIMIT - elapsed);
+                const percentage = (remaining / TIME_LIMIT) * 100;
+                timerBar.style.width = `${percentage}%`;
+                
+                if (remaining <= 1000 && remaining > 900 && !warningPlayed) {
+                    playWarningSound();
+                    timerBar.classList.add('timer-warning');
+                    warningPlayed = true;
+                }
+                
+                if (remaining === 0) {
+                    clearInterval(timerInterval);
+                    handleTimeout();
+                }
+            }, 100);
+        }
+
+        // Handle circle click
+        function handleCircleClick(index) {
+            if (clickLocked) return;
+            clickLocked = true;
+            
+            clearInterval(timerInterval);
+            const reactionTime = Date.now() - trialStartTime;
+            const levelIndex = Math.floor(currentTrial / TRIALS_PER_LEVEL);
+            const difficulty = LEVELS[levelIndex];
+            
+            let result, pointsEarned;
+            
+            if (index === correctCircleIndex) {
+                playCorrectSound();
+                result = reactionTime;
+                const maxPoints = POINTS_PER_TRIAL;
+                const minPoints = POINTS_PER_TRIAL / 2;
+                pointsEarned = maxPoints - ((maxPoints - minPoints) * (reactionTime / TIME_LIMIT));
+                currentScore += pointsEarned;
+            } else {
+                playIncorrectSound();
+                result = 'WRONG';
+                pointsEarned = 0;
+            }
+            
+            testData.push({
+                trial: currentTrial + 1,
+                level: levelIndex + 1,
+                difficulty: difficulty,
+                responseTime: result,
+                result: result
+            });
+            
+            currentTrial++;
+            showBreakThenTrial();
+        }
+
+        // Show half-second break then next trial
+        function showBreakThenTrial() {
+            const container = document.getElementById('circleContainer');
+            const circles = container.querySelectorAll('.circle');
+            circles.forEach(circle => circle.style.opacity = '0');
+            
+            setTimeout(() => {
+                circles.forEach(circle => circle.style.opacity = '1');
+                showNextTrial();
+            }, 500);
+        }
+
+        // Handle timeout
+        function handleTimeout() {
+            if (clickLocked) return;
+            clickLocked = true;
+            
+            playIncorrectSound();
+            const levelIndex = Math.floor(currentTrial / TRIALS_PER_LEVEL);
+            const difficulty = LEVELS[levelIndex];
+            
+            testData.push({
+                trial: currentTrial + 1,
+                level: levelIndex + 1,
+                difficulty: difficulty,
+                responseTime: 'MISS',
+                result: 'MISS'
+            });
+            
+            currentTrial++;
+            showBreakThenTrial();
+        }
+
+        // Show results
+        function showResults() {
+            document.getElementById('testScreen').classList.add('hidden');
+            document.getElementById('resultsScreen').classList.remove('hidden');
+            document.getElementById('finalScore').textContent = Math.round(currentScore);
+            
+            const tbody = document.getElementById('resultsBody');
+            tbody.innerHTML = '';
+            
+            testData.forEach(data => {
+                const row = tbody.insertRow();
+                row.insertCell(0).textContent = data.trial;
+                row.insertCell(1).textContent = data.level;
+                row.insertCell(2).textContent = data.difficulty;
+                row.insertCell(3).textContent = data.responseTime;
+                row.insertCell(4).textContent = typeof data.result === 'number' ? 'CORRECT' : data.result;
+            });
+        }
+
+        // Submit to Google Sheets
+        async function submitToGoogleSheets() {
+            const submitButton = document.getElementById('submitButton');
+            const statusDiv = document.getElementById('submissionStatus');
+            
+            submitButton.disabled = true;
+            submitButton.textContent = 'Submitting...';
+            statusDiv.classList.remove('hidden', 'success', 'error');
+            statusDiv.textContent = 'Submitting your results...';
+            
+            try {
+                // Organize data by difficulty level
+                const dataByDifficulty = {};
+                LEVELS.forEach(level => {
+                    dataByDifficulty[level] = [];
+                });
+                
+                // Sort test data into difficulty buckets
+                testData.forEach(trial => {
+                    dataByDifficulty[trial.difficulty].push(trial.responseTime);
+                });
+                
+                // Calculate averages and completion rates for each difficulty
+                const performanceData = {};
+                LEVELS.forEach(level => {
+                    const trials = dataByDifficulty[level];
+                    const correctTrials = trials.filter(t => typeof t === 'number');
+                    const average = correctTrials.length > 0 
+                        ? Math.round(correctTrials.reduce((a, b) => a + b, 0) / correctTrials.length)
+                        : null;
+                    const completionRate = (correctTrials.length / trials.length) * 100;
+                    
+                    performanceData[level] = {
+                        trials: trials,
+                        average: average,
+                        completionRate: completionRate
+                    };
+                });
+                
+                // Prepare data for submission
+                const submissionData = {
+                    demographics: demographicsData,
+                    performanceData: performanceData,
+                    levels: LEVELS,
+                    finalScore: Math.round(currentScore),
+                    timestamp: new Date().toISOString()
+                };
+                
+                // Send to Google Sheets
+                const response = await fetch(GOOGLE_SCRIPT_URL, {
+                    method: 'POST',
+                    mode: 'no-cors',
+                    headers: {
+                        'Content-Type': 'application/json',
+                    },
+                    body: JSON.stringify(submissionData)
+                });
+                
+                // Note: With no-cors mode, we can't read the response
+                // So we assume success if no error was thrown
+                statusDiv.classList.add('success');
+                statusDiv.textContent = '✓ Results submitted successfully! Thank you for participating.';
+                submitButton.textContent = 'Submitted';
+                
+            } catch (error) {
+                console.error('Submission error:', error);
+                statusDiv.classList.add('error');
+                statusDiv.textContent = '✗ Submission failed. Please download a backup copy and email it to the researcher.';
+                submitButton.disabled = false;
+                submitButton.textContent = 'Retry Submission';
+            }
+        }
+
+        // Download results as backup
+        function downloadResults() {
+            let csvContent = "Trial\tLevel\tDifficulty(degrees)\tResponseTime(ms)\tResult\n";
+            
+            testData.forEach(data => {
+                csvContent += `${data.trial}\t${data.level}\t${data.difficulty}\t${data.responseTime}\t`;
+                csvContent += `${typeof data.result === 'number' ? 'CORRECT' : data.result}\n`;
+            });
+            
+            const blob = new Blob([csvContent], { type: 'text/plain' });
+            const url = window.URL.createObjectURL(blob);
+            const a = document.createElement('a');
+            a.href = url;
+            a.download = `${demographicsData.fullName.replace(/\s+/g, '_')}_color_perception_results.txt`;
+            document.body.appendChild(a);
+            a.click();
+            document.body.removeChild(a);
+            window.URL.revokeObjectURL(url);
+        }
+    </script>
+</body>
+</html>
