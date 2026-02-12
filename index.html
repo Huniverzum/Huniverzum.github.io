@@ -2,7 +2,7 @@
 <html lang="en">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
     <title>Color Perception Test - Biology IA</title>
     <style>
         * {
@@ -11,9 +11,6 @@
             box-sizing: border-box;
         }
 
-
-
-        
         body {
             font-family: 'Arial', sans-serif;
             background: #2a2a2a;
@@ -169,15 +166,16 @@
 
         .circle-container {
             position: relative;
-            width: 500px;
-            height: 500px;
+            width: min(500px, 90vw);
+            height: min(500px, 90vw);
             margin: 30px auto;
+            max-width: 500px;
         }
 
         .circle {
             position: absolute;
-            width: 100px;
-            height: 100px;
+            width: min(100px, 20vw);
+            height: min(100px, 20vw);
             border-radius: 50%;
             cursor: pointer;
             transition: transform 0.1s, opacity 0.3s;
@@ -190,8 +188,8 @@
         }
 
         .center-circle {
-            width: 100px;
-            height: 100px;
+            width: min(100px, 20vw);
+            height: min(100px, 20vw);
             border-radius: 50%;
             background: hsl(120, 70%, 50%);
             position: absolute;
@@ -337,6 +335,76 @@
         @keyframes fadeIn {
             from { opacity: 0; transform: scale(0.9); }
             to { opacity: 1; transform: scale(1); }
+        }
+
+        /* Mobile optimizations */
+        @media (max-width: 768px) {
+            .demographics-screen, .instruction-screen, .demo-screen, .test-screen, .results-screen {
+                padding: 20px;
+                border-radius: 15px;
+            }
+
+            h1 {
+                font-size: 1.8em;
+            }
+
+            h2 {
+                font-size: 1.3em;
+            }
+
+            button {
+                padding: 12px 30px;
+                font-size: 1em;
+            }
+
+            .info-panel {
+                flex-direction: column;
+                gap: 10px;
+            }
+
+            .circle-container {
+                margin: 15px auto;
+            }
+
+            .container {
+                padding: 10px;
+            }
+
+            .countdown {
+                font-size: 2.5em;
+            }
+
+            .score-display {
+                font-size: 2em;
+            }
+        }
+
+        @media (max-width: 480px) {
+            h1 {
+                font-size: 1.5em;
+            }
+
+            h2 {
+                font-size: 1.2em;
+            }
+
+            .demographics-screen, .instruction-screen, .demo-screen, .test-screen, .results-screen {
+                padding: 15px;
+            }
+
+            button {
+                padding: 10px 25px;
+                font-size: 0.95em;
+                margin: 10px 5px;
+            }
+
+            .instructions {
+                font-size: 0.95em;
+            }
+
+            .demo-message {
+                font-size: 1.1em;
+            }
         }
     </style>
 </head>
