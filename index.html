@@ -379,6 +379,11 @@
             color: #f44336;
         }
 
+        .submission-status.pending {
+            background: rgba(255, 193, 7, 0.2);
+            color: #ffc107;
+        }
+
         @keyframes fadeIn {
             from { opacity: 0; transform: scale(0.9); }
             to { opacity: 1; transform: scale(1); }
@@ -473,7 +478,7 @@
                 <p>Dear Participant!</p><br>
                 <p>I am <strong style="color: #e0e0e0;">Hunor Czapary</strong>, currently pursuing my Internal Assessment in Biology at Tóth Árpád Gimnázium IB program and in cooperation with the University of Debrecen. The topic is <strong style="color: #e0e0e0;">color perception (hue discrimination)</strong>, with a particular focus on performance across different difficulty levels. This questionnaire centers on this topic: it includes <strong style="color: #e0e0e0;">50 trials</strong> where you must select the circle matching the central target color within 5 seconds.</p><br>
                 <p>The questionnaire is completed <strong style="color: #e0e0e0;">anonymously</strong>. The test can be done multiple times, but after the first, the data won't be submitted.</p><br>
-                <p>By completing it, you consent to the processing of your provided responses, which will be used <strong style="color: #e0e0e0;">exclusively for scientific purposes</strong>. The research is supervised by <strong style="color: #e0e0e0;">Dr. Habil. Szemán-Nagy Gábor</strong>, Associate Professor at the University of Debrecen.</p><br>
+                <p>By completing it, you consent to the processing of your provided responses, which will be used <strong style="color: #e0e0e0;">exclusively for scientific purposes</strong>.</p><br>
                 <p>If you have any questions or comments about the research, feel free to contact me at: <a href="mailto:hunorczapary@gmail.com" style="color: #667eea;">hunorczapary@gmail.com</a></p><br>
                 <p>I greatly appreciate your help and thank you in advance!</p>
             </div>
@@ -636,13 +641,15 @@
                     <div class="form-error" id="modsError">Please select an option</div>
                 </div>
 
+                <!-- UPDATED: Screen time question — total hours last week, not daily average -->
                 <div class="form-group">
-                    <label for="screenTime">Average daily screen time last week (hours) *</label>
+                    <label for="screenTime">Total screen time last week (hours) *</label>
                     <div style="color: #888; font-size: 0.88em; margin-bottom: 8px;">
-                        💡 Check your phone's Screen Time (iPhone: Settings → Screen Time) or Digital Wellbeing (Android: Settings → Digital Wellbeing) for your daily average from last week.
+                        How many hours total did you spend on screens last week? Include phones, computers, tablets, and TV.<br><br>
+                        💡 To find your total: check <strong style="color: #aaa;">Screen Time</strong> on iPhone (<em>Settings → Screen Time → scroll down to see the week total</em>) or <strong style="color: #aaa;">Digital Wellbeing</strong> on Android (<em>Settings → Digital Wellbeing → view weekly total</em>). If you're unsure, give your best estimate.
                     </div>
-                    <input type="number" id="screenTime" name="screenTime" min="0" max="24" step="0.5" placeholder="e.g. 4.5" required>
-                    <div class="form-error" id="screenTimeError">Please enter your average daily screen time</div>
+                    <input type="number" id="screenTime" name="screenTime" min="0" max="168" step="0.5" placeholder="e.g. 35" required>
+                    <div class="form-error" id="screenTimeError">Please enter your total screen time for last week</div>
                 </div>
 
                 <button type="submit">Continue to Instructions</button>
@@ -700,7 +707,7 @@
             <h1>Test Complete!</h1>
             <div class="score-display">Final Score: <span id="finalScore">0</span> / 1000</div>
             
-            <div id="submissionStatus" class="submission-status hidden"></div>
+            <div id="submissionStatus" class="submission-status pending">⏳ Submitting your results automatically...</div>
             
             <div class="results-table">
                 <table>
@@ -717,7 +724,6 @@
                 </table>
             </div>
             
-            <button onclick="submitToGoogleSheets()" id="submitButton">Submit Results</button>
             <button onclick="downloadResults()">Download Backup Copy</button>
         </div>
     </div>
@@ -885,18 +891,12 @@
         function positionCircles(container, colors, isDemo) {
             container.innerHTML = '<div class="center-circle"></div><div class="reference-label">Reference</div>';
             
-            // Get actual container dimensions instead of using fixed values
             const containerWidth = container.offsetWidth;
             const containerHeight = container.offsetHeight;
             const centerX = containerWidth / 2;
             const centerY = containerHeight / 2;
-            
-            // Make radius proportional to container size (40% of container width)
             const radius = containerWidth * 0.4;
-            
-            // Get circle size from CSS
             const circleSize = Math.min(100, containerWidth * 0.2);
-            
             const angleStep = (2 * Math.PI) / NUM_CIRCLES;
             
             colors.forEach((colorData, index) => {
@@ -1186,7 +1186,7 @@
             showBreakThenTrial();
         }
 
-        // Show results
+        // Show results and auto-submit
         function showResults() {
             document.getElementById('testScreen').classList.add('hidden');
             document.getElementById('resultsScreen').classList.remove('hidden');
@@ -1203,27 +1203,24 @@
                 row.insertCell(3).textContent = data.responseTime;
                 row.insertCell(4).textContent = typeof data.result === 'number' ? 'CORRECT' : data.result;
             });
+
+            // Auto-submit after a short delay so results table renders first
+            setTimeout(() => submitToGoogleSheets(), 800);
         }
 
-        // Submit to Google Sheets
+        // Submit to Google Sheets (called automatically)
         async function submitToGoogleSheets() {
-            const submitButton = document.getElementById('submitButton');
             const statusDiv = document.getElementById('submissionStatus');
 
             // Block if already submitted
             if (hasAlreadySubmitted()) {
-                statusDiv.classList.remove('hidden', 'error');
-                statusDiv.classList.add('error');
+                statusDiv.className = 'submission-status error';
                 statusDiv.textContent = '✗ This test has already been submitted from this device. Only the first attempt is recorded.';
-                submitButton.disabled = true;
-                submitButton.textContent = 'Already Submitted';
                 return;
             }
             
-            submitButton.disabled = true;
-            submitButton.textContent = 'Submitting...';
-            statusDiv.classList.remove('hidden', 'success', 'error');
-            statusDiv.textContent = 'Submitting your results...';
+            statusDiv.className = 'submission-status pending';
+            statusDiv.textContent = '⏳ Submitting your results...';
             
             try {
                 // Organize data by difficulty level
@@ -1232,12 +1229,10 @@
                     dataByDifficulty[level] = [];
                 });
                 
-                // Sort test data into difficulty buckets
                 testData.forEach(trial => {
                     dataByDifficulty[trial.difficulty].push(trial.responseTime);
                 });
                 
-                // Calculate averages and completion rates for each difficulty
                 const performanceData = {};
                 LEVELS.forEach(level => {
                     const trials = dataByDifficulty[level];
@@ -1254,7 +1249,6 @@
                     };
                 });
                 
-                // Prepare data for submission
                 const submissionData = {
                     demographics: {
                         ...demographicsData,
@@ -1266,8 +1260,7 @@
                     timestamp: new Date().toISOString()
                 };
                 
-                // Send to Google Sheets
-                const response = await fetch(GOOGLE_SCRIPT_URL, {
+                await fetch(GOOGLE_SCRIPT_URL, {
                     method: 'POST',
                     mode: 'no-cors',
                     headers: {
@@ -1276,19 +1269,14 @@
                     body: JSON.stringify(submissionData)
                 });
                 
-                // Note: With no-cors mode, we can't read the response
-                // So we assume success if no error was thrown
                 markAsSubmitted();
-                statusDiv.classList.add('success');
+                statusDiv.className = 'submission-status success';
                 statusDiv.textContent = '✓ Results submitted successfully! Thank you for participating.';
-                submitButton.textContent = 'Submitted';
                 
             } catch (error) {
                 console.error('Submission error:', error);
-                statusDiv.classList.add('error');
-                statusDiv.textContent = '✗ Submission failed. Please download a backup copy and email it to the researcher.';
-                submitButton.disabled = false;
-                submitButton.textContent = 'Retry Submission';
+                statusDiv.className = 'submission-status error';
+                statusDiv.textContent = '✗ Submission failed. Please download a backup copy and email it to the researcher at hunorczapary@gmail.com.';
             }
         }
 
