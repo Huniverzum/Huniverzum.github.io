@@ -29,7 +29,54 @@
             padding: 20px;
         }
 
-        .demographics-screen, .instruction-screen, .demo-screen, .test-screen, .results-screen {
+        .disclaimer-screen, .demographics-screen, .instruction-screen, .demo-screen, .test-screen, .results-screen {
+            background: #4a4a4a;
+            border-radius: 20px;
+            padding: 40px;
+            box-shadow: 0 8px 32px rgba(0, 0, 0, 0.5);
+        }
+
+        .disclaimer-text {
+            text-align: left;
+            color: #c0c0c0;
+            line-height: 1.8;
+            font-size: 0.95em;
+            max-width: 700px;
+            margin: 20px auto;
+            background: rgba(0,0,0,0.2);
+            padding: 25px;
+            border-radius: 10px;
+            border: 1px solid #555;
+        }
+
+        .consent-group {
+            margin: 25px auto;
+            max-width: 700px;
+            display: flex;
+            align-items: flex-start;
+            gap: 12px;
+            background: rgba(102, 126, 234, 0.1);
+            border: 2px solid #667eea;
+            border-radius: 10px;
+            padding: 15px 20px;
+        }
+
+        .consent-group input[type="checkbox"] {
+            width: 22px;
+            height: 22px;
+            min-width: 22px;
+            cursor: pointer;
+            margin-top: 2px;
+        }
+
+        .consent-group label {
+            color: #e0e0e0;
+            font-size: 1em;
+            cursor: pointer;
+            line-height: 1.5;
+        }
+
+        .already-submitted-screen {
             background: #4a4a4a;
             border-radius: 20px;
             padding: 40px;
@@ -410,17 +457,45 @@
 </head>
 <body>
     <div class="container">
+        <!-- Already Submitted Screen -->
+        <div id="alreadySubmittedScreen" class="already-submitted-screen hidden">
+            <h1>⚠️ Already Submitted</h1>
+            <p style="margin: 20px 0; font-size: 1.1em; color: #c0c0c0;">Our records show that this test has already been completed and submitted from this device.</p>
+            <p style="color: #c0c0c0; line-height: 1.8;">To ensure the scientific validity of the research, only the <strong style="color: #e0e0e0;">first attempt</strong> per participant is recorded. Repeated submissions are not counted.</p>
+            <p style="margin-top: 20px; color: #888; font-size: 0.9em;">If you believe this is an error, please contact the researcher at <a href="mailto:hunorczapary@gmail.com" style="color: #667eea;">hunorczapary@gmail.com</a>.</p>
+        </div>
+
+        <!-- Ethical Disclaimer Screen -->
+        <div id="disclaimerScreen" class="disclaimer-screen hidden">
+            <h1>Color Perception Test</h1>
+            <h2 style="margin-bottom: 5px;">Participant Information & Consent</h2>
+            <div class="disclaimer-text">
+                <p>Dear Participant!</p><br>
+                <p>I am <strong style="color: #e0e0e0;">Hunor Czapary</strong>, currently pursuing my Internal Assessment in Biology at Tóth Árpád Gimnázium IB program and in cooperation with the University of Debrecen. The topic is <strong style="color: #e0e0e0;">color perception (hue discrimination)</strong>, with a particular focus on performance across different difficulty levels. This questionnaire centers on this topic: it includes <strong style="color: #e0e0e0;">50 trials</strong> where you must select the circle matching the central target color within 5 seconds.</p><br>
+                <p>The questionnaire is completed <strong style="color: #e0e0e0;">anonymously</strong>. The test can be done multiple times, but after the first, the data won't be submitted.</p><br>
+                <p>By completing it, you consent to the processing of your provided responses, which will be used <strong style="color: #e0e0e0;">exclusively for scientific purposes</strong>. The research is supervised by <strong style="color: #e0e0e0;">Dr. Habil. Szemán-Nagy Gábor</strong>, Associate Professor at the University of Debrecen.</p><br>
+                <p>If you have any questions or comments about the research, feel free to contact me at: <a href="mailto:hunorczapary@gmail.com" style="color: #667eea;">hunorczapary@gmail.com</a></p><br>
+                <p>I greatly appreciate your help and thank you in advance!</p>
+            </div>
+            <div class="consent-group">
+                <input type="checkbox" id="consentCheckbox">
+                <label for="consentCheckbox">I have read and understood the description of the study's purpose, as well as the data processing and usage. I am over 18 years old.</label>
+            </div>
+            <div class="form-error" id="consentError" style="display:none; text-align:center; margin-bottom: 10px;">Please check the box above to confirm your consent before continuing.</div>
+            <button onclick="acceptDisclaimer()">Yes, I consent — Continue to Questionnaire</button>
+        </div>
+
         <!-- Demographics Screen -->
-        <div id="demographicsScreen" class="demographics-screen">
+        <div id="demographicsScreen" class="demographics-screen hidden">
             <h1>Color Perception Test</h1>
             <h2>Participant Information</h2>
             <p style="margin-bottom: 30px;">Please fill out the following information before starting the test.</p>
             
             <form id="demographicsForm" class="demographics-form">
                 <div class="form-group">
-                    <label for="fullName">Full Name *</label>
-                    <input type="text" id="fullName" name="fullName" required>
-                    <div class="form-error" id="nameError">Please enter your full name</div>
+                    <label>Your Anonymous Participant ID</label>
+                    <div style="background: #3a3a3a; border: 2px solid #555; border-radius: 8px; padding: 12px; color: #e0e0e0; font-family: monospace; font-size: 1.2em; letter-spacing: 3px;" id="participantIDDisplay">—</div>
+                    <div style="color: #888; font-size: 0.85em; margin-top: 6px;">This ID is automatically generated and does not identify you personally.</div>
                 </div>
 
                 <div class="form-group">
@@ -561,6 +636,15 @@
                     <div class="form-error" id="modsError">Please select an option</div>
                 </div>
 
+                <div class="form-group">
+                    <label for="screenTime">Average daily screen time last week (hours) *</label>
+                    <div style="color: #888; font-size: 0.88em; margin-bottom: 8px;">
+                        💡 Check your phone's Screen Time (iPhone: Settings → Screen Time) or Digital Wellbeing (Android: Settings → Digital Wellbeing) for your daily average from last week.
+                    </div>
+                    <input type="number" id="screenTime" name="screenTime" min="0" max="24" step="0.5" placeholder="e.g. 4.5" required>
+                    <div class="form-error" id="screenTimeError">Please enter your average daily screen time</div>
+                </div>
+
                 <button type="submit">Continue to Instructions</button>
             </form>
         </div>
@@ -603,9 +687,6 @@
         <div id="testScreen" class="test-screen hidden">
             <div class="info-panel">
                 <div class="info-item">Trial: <span id="trialNumber">1</span>/50</div>
-                <div class="info-item">Level: <span id="levelNumber">1</span>/10</div>
-                <div class="info-item">Difficulty: <span id="difficulty">180</span>°</div>
-                <div class="info-item">Score: <span id="currentScore">0</span></div>
             </div>
             <div class="timer-bar" id="timerBar"></div>
             <div class="circle-container" id="circleContainer">
@@ -643,7 +724,7 @@
 
     <script>
         // IMPORTANT: Replace this URL with your Google Apps Script web app URL
-        const GOOGLE_SCRIPT_URL = 'https://script.google.com/macros/s/AKfycbx1ALarn7HQ1gvNCXnmG9gPG47sHyWAAOeNLJPOAeMPCjm_qugGO92qSX_m2OTYA59x/exec';
+        const GOOGLE_SCRIPT_URL = 'https://script.google.com/macros/s/AKfycbw2ZGB70VIOwVwb55tqF0AHXuFZoQ0C1B2jtAINejaZemc3uPIBP08wWj6XnAXGZw3J/exec';
 
         // Test Configuration
         const TARGET_HUE = 120; // Pure green
@@ -658,32 +739,6 @@
         // Sound effects (using Web Audio API)
         const audioContext = new (window.AudioContext || window.webkitAudioContext)();
 
-        function playCorrectSound() {
-            const oscillator = audioContext.createOscillator();
-            const gainNode = audioContext.createGain();
-            oscillator.connect(gainNode);
-            gainNode.connect(audioContext.destination);
-            oscillator.frequency.setValueAtTime(800, audioContext.currentTime);
-            oscillator.frequency.exponentialRampToValueAtTime(1200, audioContext.currentTime + 0.1);
-            gainNode.gain.setValueAtTime(0.3, audioContext.currentTime);
-            gainNode.gain.exponentialRampToValueAtTime(0.01, audioContext.currentTime + 0.1);
-            oscillator.start(audioContext.currentTime);
-            oscillator.stop(audioContext.currentTime + 0.1);
-        }
-
-        function playIncorrectSound() {
-            const oscillator = audioContext.createOscillator();
-            const gainNode = audioContext.createGain();
-            oscillator.connect(gainNode);
-            gainNode.connect(audioContext.destination);
-            oscillator.frequency.setValueAtTime(200, audioContext.currentTime);
-            oscillator.frequency.exponentialRampToValueAtTime(100, audioContext.currentTime + 0.2);
-            gainNode.gain.setValueAtTime(0.3, audioContext.currentTime);
-            gainNode.gain.exponentialRampToValueAtTime(0.01, audioContext.currentTime + 0.2);
-            oscillator.start(audioContext.currentTime);
-            oscillator.stop(audioContext.currentTime + 0.2);
-        }
-
         function playWarningSound() {
             const oscillator = audioContext.createOscillator();
             const gainNode = audioContext.createGain();
@@ -695,6 +750,48 @@
             oscillator.start(audioContext.currentTime);
             oscillator.stop(audioContext.currentTime + 0.15);
         }
+
+        // ── Participant ID & First-Attempt Guard ─────────────────────────────
+        function getOrCreateParticipantID() {
+            let id = localStorage.getItem('cptest_participantID');
+            if (!id) {
+                id = Math.random().toString(36).substring(2, 5).toUpperCase() +
+                     Math.random().toString(36).substring(2, 5).toUpperCase();
+                localStorage.setItem('cptest_participantID', id);
+            }
+            return id;
+        }
+
+        function hasAlreadySubmitted() {
+            return localStorage.getItem('cptest_submitted') === 'true';
+        }
+
+        function markAsSubmitted() {
+            localStorage.setItem('cptest_submitted', 'true');
+        }
+
+        // Show disclaimer or already-submitted screen on load
+        window.addEventListener('load', function() {
+            if (hasAlreadySubmitted()) {
+                document.getElementById('alreadySubmittedScreen').classList.remove('hidden');
+            } else {
+                document.getElementById('disclaimerScreen').classList.remove('hidden');
+            }
+            // Pre-fill participant ID display
+            document.getElementById('participantIDDisplay').textContent = getOrCreateParticipantID();
+        });
+
+        function acceptDisclaimer() {
+            const checkbox = document.getElementById('consentCheckbox');
+            if (!checkbox.checked) {
+                document.getElementById('consentError').style.display = 'block';
+                return;
+            }
+            document.getElementById('consentError').style.display = 'none';
+            document.getElementById('disclaimerScreen').classList.add('hidden');
+            document.getElementById('demographicsScreen').classList.remove('hidden');
+        }
+        // ─────────────────────────────────────────────────────────────────────
 
         // State variables
         let currentMode = 'demographics';
@@ -708,6 +805,15 @@
         let warningPlayed = false;
         let clickLocked = false;
         let demographicsData = {};
+        let tabFlaggedCurrentTrial = false;
+
+        // ── Tab Visibility Detector ──────────────────────────────────────────
+        document.addEventListener('visibilitychange', function() {
+            if (document.hidden && currentMode === 'test' && !clickLocked) {
+                tabFlaggedCurrentTrial = true;
+            }
+        });
+        // ─────────────────────────────────────────────────────────────────────
 
         // Demographics form handling
         document.getElementById('demographicsForm').addEventListener('submit', function(e) {
@@ -715,7 +821,7 @@
             
             // Collect demographics data
             demographicsData = {
-                fullName: document.getElementById('fullName').value,
+                participantID: getOrCreateParticipantID(),
                 age: document.getElementById('age').value,
                 sex: document.querySelector('input[name="sex"]:checked').value,
                 colorVision: document.querySelector('input[name="colorVision"]:checked').value,
@@ -723,7 +829,10 @@
                 device: document.querySelector('input[name="device"]:checked').value,
                 screen: document.querySelector('input[name="screen"]:checked')?.value || 'Not specified',
                 lighting: document.querySelector('input[name="lighting"]:checked').value,
-                mods: document.querySelector('input[name="mods"]:checked').value
+                mods: document.querySelector('input[name="mods"]:checked').value,
+                screenTime: document.getElementById('screenTime').value,
+                devicePixelRatio: window.devicePixelRatio || 'N/A',
+                colorDepth: screen.colorDepth || 'N/A'
             };
             
             // Move to instruction screen
@@ -970,9 +1079,6 @@
             const difficulty = LEVELS[levelIndex];
             
             document.getElementById('trialNumber').textContent = currentTrial + 1;
-            document.getElementById('levelNumber').textContent = levelIndex + 1;
-            document.getElementById('difficulty').textContent = difficulty;
-            document.getElementById('currentScore').textContent = Math.round(currentScore);
             
             const colors = generateColors(difficulty);
             const container = document.getElementById('circleContainer');
@@ -989,6 +1095,7 @@
             timerBar.classList.remove('timer-warning');
             warningPlayed = false;
             clickLocked = false;
+            tabFlaggedCurrentTrial = false;
             
             if (timerInterval) clearInterval(timerInterval);
             
@@ -1023,15 +1130,16 @@
             
             let result, pointsEarned;
             
-            if (index === correctCircleIndex) {
-                playCorrectSound();
+            if (tabFlaggedCurrentTrial) {
+                result = 'FLAGGED';
+                pointsEarned = 0;
+            } else if (index === correctCircleIndex) {
                 result = reactionTime;
                 const maxPoints = POINTS_PER_TRIAL;
                 const minPoints = POINTS_PER_TRIAL / 2;
                 pointsEarned = maxPoints - ((maxPoints - minPoints) * (reactionTime / TIME_LIMIT));
                 currentScore += pointsEarned;
             } else {
-                playIncorrectSound();
                 result = 'WRONG';
                 pointsEarned = 0;
             }
@@ -1065,16 +1173,16 @@
             if (clickLocked) return;
             clickLocked = true;
             
-            playIncorrectSound();
             const levelIndex = Math.floor(currentTrial / TRIALS_PER_LEVEL);
             const difficulty = LEVELS[levelIndex];
+            const result = tabFlaggedCurrentTrial ? 'FLAGGED' : 'MISS';
             
             testData.push({
                 trial: currentTrial + 1,
                 level: levelIndex + 1,
                 difficulty: difficulty,
-                responseTime: 'MISS',
-                result: 'MISS'
+                responseTime: result,
+                result: result
             });
             
             currentTrial++;
@@ -1104,6 +1212,16 @@
         async function submitToGoogleSheets() {
             const submitButton = document.getElementById('submitButton');
             const statusDiv = document.getElementById('submissionStatus');
+
+            // Block if already submitted
+            if (hasAlreadySubmitted()) {
+                statusDiv.classList.remove('hidden', 'error');
+                statusDiv.classList.add('error');
+                statusDiv.textContent = '✗ This test has already been submitted from this device. Only the first attempt is recorded.';
+                submitButton.disabled = true;
+                submitButton.textContent = 'Already Submitted';
+                return;
+            }
             
             submitButton.disabled = true;
             submitButton.textContent = 'Submitting...';
@@ -1141,7 +1259,10 @@
                 
                 // Prepare data for submission
                 const submissionData = {
-                    demographics: demographicsData,
+                    demographics: {
+                        ...demographicsData,
+                        finalScore: Math.round(currentScore)
+                    },
                     performanceData: performanceData,
                     levels: LEVELS,
                     finalScore: Math.round(currentScore),
@@ -1160,6 +1281,7 @@
                 
                 // Note: With no-cors mode, we can't read the response
                 // So we assume success if no error was thrown
+                markAsSubmitted();
                 statusDiv.classList.add('success');
                 statusDiv.textContent = '✓ Results submitted successfully! Thank you for participating.';
                 submitButton.textContent = 'Submitted';
@@ -1186,7 +1308,7 @@
             const url = window.URL.createObjectURL(blob);
             const a = document.createElement('a');
             a.href = url;
-            a.download = `${demographicsData.fullName.replace(/\s+/g, '_')}_color_perception_results.txt`;
+            a.download = `${demographicsData.participantID}_color_perception_results.txt`;
             document.body.appendChild(a);
             a.click();
             document.body.removeChild(a);
