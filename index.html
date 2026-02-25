@@ -724,7 +724,7 @@
 
     <script>
         // IMPORTANT: Replace this URL with your Google Apps Script web app URL
-        const GOOGLE_SCRIPT_URL = 'https://script.google.com/macros/s/AKfycbw2ZGB70VIOwVwb55tqF0AHXuFZoQ0C1B2jtAINejaZemc3uPIBP08wWj6XnAXGZw3J/exec';
+        const GOOGLE_SCRIPT_URL = 'https://script.google.com/macros/s/AKfycbx1ALarn7HQ1gvNCXnmG9gPG47sHyWAAOeNLJPOAeMPCjm_qugGO92qSX_m2OTYA59x/exec';
 
         // Test Configuration
         const TARGET_HUE = 120; // Pure green
@@ -986,7 +986,6 @@
             clearInterval(timerInterval);
             
             if (index === correctCircleIndex) {
-                playCorrectSound();
                 const message = document.getElementById('demoMessage');
                 message.innerHTML = '✓ Correct! Moving to next demo...';
                 message.className = 'demo-message feedback correct';
@@ -997,7 +996,6 @@
                     showBreakThenDemo();
                 }, 1000);
             } else {
-                playIncorrectSound();
                 const message = document.getElementById('demoMessage');
                 message.innerHTML = '✗ Incorrect. Try again!';
                 message.className = 'demo-message feedback incorrect';
@@ -1026,7 +1024,6 @@
             if (clickLocked) return;
             clickLocked = true;
             
-            playIncorrectSound();
             const message = document.getElementById('demoMessage');
             message.innerHTML = '⏱ Time\'s up! Try again.';
             message.className = 'demo-message feedback incorrect';
