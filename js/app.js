@@ -231,6 +231,73 @@ function showToast(msg) {
 }
 
 // ─────────────────────────────────────────────
+//  CONFIRM MODAL
+// ─────────────────────────────────────────────
+let confirmCallback = null;
+
+function showConfirm({ icon = '🗑️', title = 'Are you sure?', msg = '', okLabel = 'Delete', onOk }) {
+  document.getElementById('confirmIcon').textContent  = icon;
+  document.getElementById('confirmTitle').textContent = title;
+  document.getElementById('confirmMsg').textContent   = msg;
+  document.getElementById('confirmOk').textContent    = okLabel;
+  confirmCallback = onOk;
+  document.getElementById('confirmModal').classList.add('visible');
+}
+
+document.getElementById('confirmCancel').addEventListener('click', () => {
+  document.getElementById('confirmModal').classList.remove('visible');
+  confirmCallback = null;
+});
+document.getElementById('confirmOk').addEventListener('click', () => {
+  document.getElementById('confirmModal').classList.remove('visible');
+  if (confirmCallback) { confirmCallback(); confirmCallback = null; }
+});
+document.getElementById('confirmModal').addEventListener('click', function(e) {
+  if (e.target === this) { this.classList.remove('visible'); confirmCallback = null; }
+});
+
+// ─────────────────────────────────────────────
+//  DELETE HELPERS
+// ─────────────────────────────────────────────
+function deleteTopic(topicId) {
+  const topic = topics.find(t => t.id === topicId);
+  if (!topic) return;
+  showConfirm({
+    icon: '🗑️',
+    title: 'Delete topic?',
+    msg: `"${topic.name}" and all ${topic.cardIds.length} card${topic.cardIds.length !== 1 ? 's' : ''} will be permanently removed.`,
+    okLabel: 'Delete Topic',
+    onOk: () => {
+      cards  = cards.filter(c => !topic.cardIds.includes(c.id));
+      topics = topics.filter(t => t.id !== topicId);
+      markDirty();
+      renderCatalogue();
+      renderDojoSetup();
+      showToast(`🗑️ "${topic.name}" deleted`);
+    }
+  });
+}
+
+function deleteCard(cardId) {
+  const card = cards.find(c => c.id === cardId);
+  if (!card) return;
+  showConfirm({
+    icon: '✕',
+    title: 'Delete card?',
+    msg: `"${card.head.slice(0, 60)}${card.head.length > 60 ? '…' : ''}" will be permanently removed.`,
+    okLabel: 'Delete Card',
+    onOk: () => {
+      cards  = cards.filter(c => c.id !== cardId);
+      topics.forEach(t => { t.cardIds = t.cardIds.filter(id => id !== cardId); });
+      markDirty();
+      renderCatalogue();
+      updateSliderUI();
+      showToast('🗑️ Card deleted');
+    }
+  });
+}
+
+// ─────────────────────────────────────────────
 //  VIEW MANAGER
 // ─────────────────────────────────────────────
 const viewIds = ['viewDojoSetup','viewDojoGame','viewDojoComplete','viewCatalogue'];
@@ -550,6 +617,7 @@ function renderListView() {
         <div class="topic-name">${topic.name}</div>
         <div class="topic-meta">${topicCards.length} card${topicCards.length!==1?'s':''}</div>
         <button class="list-export-btn" title="Export topic">⬆</button>
+        <button class="list-delete-btn" title="Delete topic">🗑</button>
         <div class="topic-chevron">▼</div>
       </div>
       <div class="topic-cards">
@@ -559,6 +627,7 @@ function renderListView() {
             <span class="tci-diff" style="background:${col.bg};color:${col.fg}">D${c.difficulty}</span>
             <span class="tci-head">${c.head}</span>
             <button class="tci-edit" data-cid="${c.id}">✏️ Edit</button>
+            <button class="tci-del"  data-cid="${c.id}">🗑</button>
           </div>`;
         }).join('')}
       </div>`;
@@ -569,12 +638,18 @@ function renderListView() {
     row.querySelector('.list-export-btn').addEventListener('click', e => {
       e.stopPropagation(); exportTopic(topic);
     });
+    row.querySelector('.list-delete-btn').addEventListener('click', e => {
+      e.stopPropagation(); deleteTopic(topic.id);
+    });
     row.querySelector('.topic-header').addEventListener('click', e => {
-      if (e.target.closest('.topic-toggle') || e.target.closest('.list-export-btn')) return;
+      if (e.target.closest('.topic-toggle') || e.target.closest('.list-export-btn') || e.target.closest('.list-delete-btn')) return;
       row.classList.toggle('open');
     });
     row.querySelectorAll('.tci-edit').forEach(btn => {
       btn.addEventListener('click', e => { e.stopPropagation(); openEditModal(btn.dataset.cid); });
+    });
+    row.querySelectorAll('.tci-del').forEach(btn => {
+      btn.addEventListener('click', e => { e.stopPropagation(); deleteCard(btn.dataset.cid); });
     });
     list.appendChild(row);
   });
@@ -593,11 +668,14 @@ function renderTileView() {
       <span class="tile-badge ${topic.enabled ? 'on' : 'off'}">${topic.enabled ? 'Active' : 'Inactive'}</span>
       <div class="tile-actions">
         <button class="tile-export-btn" title="Export topic">⬆</button>
+        <button class="tile-delete-btn" title="Delete topic">🗑</button>
         <span class="tile-arrow">→</span>
       </div>`;
     tile.querySelector('.tile-export-btn').addEventListener('click', e => {
-      e.stopPropagation();
-      exportTopic(topic);
+      e.stopPropagation(); exportTopic(topic);
+    });
+    tile.querySelector('.tile-delete-btn').addEventListener('click', e => {
+      e.stopPropagation(); deleteTopic(topic.id);
     });
     tile.addEventListener('click', () => openTopicDetail(topic.id));
     grid.appendChild(tile);
@@ -622,6 +700,8 @@ function openTopicDetail(topicId) {
     syncToggle(); markDirty(); updateSliderUI(); renderDojoSetup();
   };
 
+  document.getElementById('detailDeleteBtn').onclick = () => deleteTopic(topicId);
+
   const list = document.getElementById('detailCardList');
   list.innerHTML = '';
   topicCards.forEach(c => {
@@ -634,9 +714,13 @@ function openTopicDetail(topicId) {
         <div class="detail-card-q">${c.head}</div>
         <div class="detail-card-a">${c.answer}</div>
       </div>
-      <button class="tci-edit" data-cid="${c.id}">✏️</button>`;
+      <button class="tci-edit" data-cid="${c.id}">✏️</button>
+      <button class="tci-del"  data-cid="${c.id}">🗑</button>`;
     item.querySelector('.tci-edit').addEventListener('click', e => {
       e.stopPropagation(); openEditModal(c.id);
+    });
+    item.querySelector('.tci-del').addEventListener('click', e => {
+      e.stopPropagation(); deleteCard(c.id);
     });
     list.appendChild(item);
   });
